@@ -1,0 +1,127 @@
+// src/app/ciramic_company/sales/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import api from '@/utils/api';
+import { Sale, SaleMeta, SaleResponse } from '@/types/ciramic';
+
+import CiramicHeader from '../expenses/components/CiramicHeader'; // Shared Header
+import SalesSidebar from './components/SalesSidebar';
+import SalesFilter from './components/SalesFilter';
+import SalesTable from './components/SalesTable';
+import SalesModals from './components/SalesModals';
+import PrintSales from './components/PrintSales';
+
+export default function CiramicSalesPage() {
+    // State
+    const [data, setData] = useState<Sale[]>([]);
+    const [meta, setMeta] = useState<SaleMeta | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [history, setHistory] = useState(false);
+
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
+    const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+    const [formData, setFormData] = useState({ amount: '', note: '' });
+    const [deleteCode, setDeleteCode] = useState('');
+    const [userDeleteInput, setUserDeleteInput] = useState('');
+
+    // Fetch
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get<SaleResponse>('/cirmaci/sales', {
+                params: { page, limit, search, history: history.toString() }
+            });
+            setData(res.data.data || []);
+            setMeta(res.data.meta);
+        } catch (error) {
+            console.error("Fetch Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const t = setTimeout(fetchData, 300);
+        return () => clearTimeout(t);
+    }, [page, limit, search, history]);
+
+    // Handlers
+    const handleAdd = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await api.post('/cirmaci/sales', { ...formData, amount: parseFloat(formData.amount) });
+            setIsAddOpen(false);
+            setFormData({ amount: '', note: '' });
+            fetchData();
+        } catch (e) { alert('Error adding sale'); }
+    };
+
+    const handleUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedSale) return;
+        try {
+            await api.put(`/cirmaci/sales/${selectedSale.id}`, { ...formData, amount: parseFloat(formData.amount) });
+            setIsEditOpen(false);
+            fetchData();
+        } catch (e) { alert('Error updating sale'); }
+    };
+
+    const handleDelete = async () => {
+        if (!selectedSale) return;
+        try {
+            await api.delete(`/cirmaci/sales/${selectedSale.id}`);
+            setIsDeleteOpen(false);
+            fetchData();
+        } catch (e) { alert('Error deleting sale'); }
+    };
+
+    const openEdit = (s: Sale) => {
+        setSelectedSale(s);
+        setFormData({ amount: s.amount.toString(), note: s.note });
+        setIsEditOpen(true);
+    };
+
+    const openDelete = (s: Sale) => {
+        setSelectedSale(s);
+        setDeleteCode(Math.floor(1000 + Math.random() * 9000).toString());
+        setUserDeleteInput('');
+        setIsDeleteOpen(true);
+    };
+
+    return (
+        <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-800">
+            <CiramicHeader />
+
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 flex-1 overflow-hidden print:hidden">
+                <div className="col-span-1">
+                    <SalesSidebar meta={meta} onAddClick={() => setIsAddOpen(true)} />
+                </div>
+                <div className="col-span-1 lg:col-span-3 flex flex-col h-full overflow-hidden">
+                    <SalesFilter search={search} setSearch={setSearch} limit={limit} setLimit={setLimit} history={history} setHistory={setHistory} />
+                    <div className="flex-1 min-h-0">
+                        <SalesTable data={data} meta={meta} loading={loading} onEdit={openEdit} onDelete={openDelete} onPageChange={setPage} />
+                    </div>
+                </div>
+            </div>
+
+            <PrintSales data={data} meta={meta} />
+
+            <SalesModals
+                isAddOpen={isAddOpen} setIsAddOpen={setIsAddOpen}
+                isEditOpen={isEditOpen} setIsEditOpen={setIsEditOpen}
+                isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
+                formData={formData} setFormData={setFormData}
+                handleAdd={handleAdd} handleUpdate={handleUpdate} handleDelete={handleDelete}
+                selectedSale={selectedSale} deleteCode={deleteCode} userDeleteInput={userDeleteInput} setUserDeleteInput={setUserDeleteInput}
+            />
+        </div>
+    );
+}
