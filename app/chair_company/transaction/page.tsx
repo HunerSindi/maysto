@@ -1,9 +1,9 @@
-// src/app/chair_company/transaction/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { TransactionDashboardData, HistoryResponse, TransactionHistoryItem, TransactionMeta } from '@/types/chair';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 import ChairHeader from '../components/ChairHeader';
 import DashboardCards from './components/DashboardCards';
@@ -12,6 +12,7 @@ import HistoryTable from './components/HistoryTable';
 import TransactionModals from './components/TransactionModals';
 
 export default function TransactionPage() {
+    const { t } = useLanguage();
     const [dashboard, setDashboard] = useState<TransactionDashboardData | null>(null);
     const [history, setHistory] = useState<TransactionHistoryItem[]>([]);
     const [meta, setMeta] = useState<TransactionMeta | null>(null);
@@ -47,14 +48,14 @@ export default function TransactionPage() {
         try {
             await api.post('/chair/transaction/adjust', { amount, type, note });
             fetchAll();
-        } catch (error) { alert('Operation failed'); }
+        } catch (error) { alert(t.chair_transaction.alerts.failed); }
     };
 
     const handleConfirm = async () => {
         try {
             await api.post('/chair/transaction/confirm');
             fetchAll();
-        } catch (error) { alert('Failed to close period'); }
+        } catch (error) { alert(t.chair_transaction.alerts.close_failed); }
     };
 
     return (

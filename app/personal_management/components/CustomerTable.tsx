@@ -1,9 +1,9 @@
-// src/app/personal_management/components/CustomerTable.tsx
 'use client';
 
 import Link from 'next/link';
 import { Eye, Edit, Trash2 } from 'lucide-react';
 import { Customer, Meta } from '@/types/personal';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface TableProps {
     data: Customer[];
@@ -17,8 +17,10 @@ interface TableProps {
 export default function CustomerTable({
     data, meta, loading, onEdit, onDelete, onPageChange
 }: TableProps) {
+    const { t, language } = useLanguage();
+    const isRtl = language === 'ar' || language === 'ku';
 
-    // FIX: Ensure safeData is always an array to prevent crashes
+    // FIX: Ensure safeData is always an array
     const safeData = Array.isArray(data) ? data : [];
 
     // Helper for pagination
@@ -37,7 +39,7 @@ export default function CustomerTable({
                 {loading && (
                     <div className="absolute inset-0 bg-white/60 z-20 flex items-center justify-center backdrop-blur-sm">
                         <span className="font-bold text-sm uppercase bg-white px-4 py-2 border shadow border-gray-300 animate-pulse">
-                            Loading Records...
+                            {t.personal.table.loading}
                         </span>
                     </div>
                 )}
@@ -46,12 +48,12 @@ export default function CustomerTable({
                     {/* Sticky Header */}
                     <thead className="bg-gray-100 border-b border-gray-400 sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase w-16 text-center">ID</th>
-                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase">Customer Name</th>
-                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase w-32">Phone</th>
-                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase w-48">Location</th>
-                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase text-right w-32">Balance</th>
-                            <th className="p-2 text-xs font-bold uppercase text-center w-24">Actions</th>
+                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase w-16 text-center">{t.personal.table.id}</th>
+                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase">{t.personal.table.name}</th>
+                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase w-32">{t.personal.table.phone}</th>
+                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase w-48">{t.personal.table.location}</th>
+                            <th className="p-2 border-r border-gray-300 text-xs font-bold uppercase text-right w-32">{t.personal.table.balance}</th>
+                            <th className="p-2 text-xs font-bold uppercase text-center w-24">{t.personal.table.actions}</th>
                         </tr>
                     </thead>
 
@@ -59,7 +61,7 @@ export default function CustomerTable({
                         {safeData.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="p-8 text-center text-gray-500 italic">
-                                    No records found matching your criteria.
+                                    {t.personal.table.empty}
                                 </td>
                             </tr>
                         ) : (
@@ -102,7 +104,7 @@ export default function CustomerTable({
             {/* Footer / Pagination */}
             <div className="border-t border-gray-400 p-2 bg-gray-100 flex justify-between items-center shrink-0 z-20 print:hidden">
                 <span className="text-xs font-bold text-gray-600 uppercase">
-                    Total: {totalItems}
+                    {t.personal.table.total}: {totalItems}
                 </span>
 
                 <div className="flex gap-1 items-center">
@@ -111,7 +113,7 @@ export default function CustomerTable({
                         onClick={() => onPageChange(currentPage - 1)}
                         className="px-3 py-1 bg-white border border-gray-400 text-xs font-bold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-sm uppercase transition-colors"
                     >
-                        Prev
+                        {t.personal.table.prev}
                     </button>
 
                     <span className="px-3 py-1 text-xs font-bold flex items-center bg-white border border-gray-300 h-full min-w-12 justify-center">
@@ -123,7 +125,7 @@ export default function CustomerTable({
                         onClick={() => onPageChange(currentPage + 1)}
                         className="px-3 py-1 bg-white border border-gray-400 text-xs font-bold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-sm uppercase transition-colors"
                     >
-                        Next
+                        {t.personal.table.next}
                     </button>
                 </div>
             </div>

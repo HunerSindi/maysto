@@ -1,11 +1,10 @@
-// src/app/personal_management/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { Customer, Meta } from '@/types/personal';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-// Import our new split components
 import PersonalHeader from './components/PersonalHeader';
 import ActionSidebar from './components/ActionSidebar';
 import FilterSection from './components/FilterSection';
@@ -14,6 +13,8 @@ import CustomerModals from './components/CustomerModals';
 import PrintPersonalCustomer from './components/PrintPersonalCustomer';
 
 export default function PersonalCustomersList() {
+    const { t } = useLanguage();
+
     // --- State Management ---
     const [data, setData] = useState<Customer[]>([]);
     const [meta, setMeta] = useState<Meta | null>(null);
@@ -68,7 +69,7 @@ export default function PersonalCustomersList() {
             setIsAddOpen(false);
             setFormData({ name: '', phone: '', location: '', note: '' });
             fetchData();
-        } catch (err) { alert('Failed to add'); }
+        } catch (err) { alert(t.personal.alerts.add_fail); }
     };
 
     const openEdit = (customer: Customer) => {
@@ -84,7 +85,7 @@ export default function PersonalCustomersList() {
             await api.put(`/personal/customers/${selectedCustomer.id}`, formData);
             setIsEditOpen(false);
             fetchData();
-        } catch (err) { alert('Failed to update'); }
+        } catch (err) { alert(t.personal.alerts.update_fail); }
     };
 
     const openDelete = (customer: Customer) => {
@@ -100,14 +101,12 @@ export default function PersonalCustomersList() {
             await api.delete(`/personal/customers/${selectedCustomer.id}`);
             setIsDeleteOpen(false);
             fetchData();
-        } catch (err) { alert('Failed to delete'); }
+        } catch (err) { alert(t.personal.alerts.delete_fail); }
     };
 
     // --- Render ---
     return (
         <div>
-
-
             <div className="font-sans text-gray-800 print:hidden">
                 <PersonalHeader />
 
@@ -140,9 +139,6 @@ export default function PersonalCustomersList() {
                         />
                     </div>
                 </div>
-
-                {/* Modals placed here to keep the grid clean */}
-
 
                 <CustomerModals
                     isAddOpen={isAddOpen} setIsAddOpen={setIsAddOpen}

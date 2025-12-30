@@ -1,11 +1,12 @@
-// src/app/personal_management/[id]/components/CustomerDetailHeader.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { Printer } from 'lucide-react';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function CustomerDetailHeader() {
     const router = useRouter();
+    const { t } = useLanguage();
 
     const handlePrint = () => {
         window.print();
@@ -18,14 +19,14 @@ export default function CustomerDetailHeader() {
                     onClick={() => router.push("/personal_management")}
                     className="text-white font-bold hover:text-black uppercase text-sm flex items-center gap-2 transition-colors"
                 >
-                    <span className="text-lg pb-1">&larr;</span>
-                    Back to List
+                    <span className="text-lg pb-1 rtl:rotate-180">&larr;</span>
+                    {t.personal_detail.header.back}
                 </button>
 
                 <div className="h-6 w-px bg-red-400"></div>
 
                 <h1 className="font-bold text-white uppercase tracking-tight text-lg">
-                    Customer Statement
+                    {t.personal_detail.header.title}
                 </h1>
             </div>
 
@@ -33,7 +34,7 @@ export default function CustomerDetailHeader() {
                 onClick={handlePrint}
                 className="flex items-center gap-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold uppercase px-4 py-2 border border-red-900 transition-colors shadow-sm "
             >
-                <Printer size={16} /> Print Statement
+                <Printer size={16} /> {t.personal_detail.header.print}
             </button>
         </div>
     );

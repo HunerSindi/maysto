@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { WoodSale, WoodSaleMeta, WoodSaleResponse } from '@/types/wood';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 import WoodHeader from '../components/WoodHeader';
 import SalesSidebar from './components/SalesSidebar';
@@ -12,6 +13,7 @@ import SalesModals from './components/SalesModals';
 import PrintSales from './components/PrintSales';
 
 export default function WoodSalesPage() {
+    const { t } = useLanguage();
     const [data, setData] = useState<WoodSale[]>([]);
     const [meta, setMeta] = useState<WoodSaleMeta | null>(null);
     const [loading, setLoading] = useState(true);
@@ -56,7 +58,7 @@ export default function WoodSalesPage() {
             setIsAddOpen(false);
             setFormData({ customer_id: 0, amount: '', note: '' });
             fetchData();
-        } catch (e) { alert('Error creating sale'); }
+        } catch (e) { alert(t.wood_sales.alerts.create_err); }
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -66,7 +68,7 @@ export default function WoodSalesPage() {
             await api.put(`/wood/sales/${selectedSale.id}`, { amount: parseFloat(formData.amount), note: formData.note });
             setIsEditOpen(false);
             fetchData();
-        } catch (e) { alert('Error updating sale'); }
+        } catch (e) { alert(t.wood_sales.alerts.update_err); }
     };
 
     const handleDelete = async () => {
@@ -75,7 +77,7 @@ export default function WoodSalesPage() {
             await api.delete(`/wood/sales/${selectedSale.id}`);
             setIsDeleteOpen(false);
             fetchData();
-        } catch (e) { alert('Error deleting sale'); }
+        } catch (e) { alert(t.wood_sales.alerts.delete_err); }
     };
 
     const openEdit = (s: WoodSale) => {

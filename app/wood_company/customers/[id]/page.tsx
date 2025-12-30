@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import api from '@/utils/api';
 import { WoodCustomer, WoodTransaction, WoodCustomerDetailResponse } from '@/types/wood';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 import DetailHeader from './components/DetailHeader';
 import DetailInfo from './components/DetailInfo';
@@ -12,6 +13,7 @@ import PrintDetail from './components/PrintDetail';
 
 export default function WoodCustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
+    const { t } = useLanguage();
     const [customer, setCustomer] = useState<WoodCustomer | null>(null);
     const [transactions, setTransactions] = useState<WoodTransaction[]>([]);
     const [loading, setLoading] = useState(true);
@@ -21,7 +23,6 @@ export default function WoodCustomerDetailPage({ params }: { params: Promise<{ i
         try {
             const res = await api.get<WoodCustomerDetailResponse>(`/wood/customers/${id}`);
             setCustomer(res.data.customer);
-            // Safety check for transactions array
             setTransactions(res.data.transactions || []);
         } catch (error) { console.error(error); }
         finally { setLoading(false); }
@@ -33,11 +34,11 @@ export default function WoodCustomerDetailPage({ params }: { params: Promise<{ i
         try {
             await api.post(`/wood/customers/${id}/adjust`, { type, amount, note });
             fetchDetails();
-        } catch (e) { alert('Adjustment Failed'); }
+        } catch (e) { alert(t.wood_customer_detail.alerts.adjust_failed); }
     };
 
-    if (loading) return <div className="h-screen flex items-center justify-center font-bold uppercase text-gray-500">Loading...</div>;
-    if (!customer) return <div className="h-screen flex items-center justify-center font-bold uppercase text-red-500">Not Found</div>;
+    if (loading) return <div className="h-screen flex items-center justify-center font-bold uppercase text-gray-500">{t.wood_customer_detail.alerts.loading}</div>;
+    if (!customer) return <div className="h-screen flex items-center justify-center font-bold uppercase text-red-500">{t.wood_customer_detail.alerts.not_found}</div>;
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">

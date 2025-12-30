@@ -101,14 +101,13 @@ export interface WoodSaleResponse {
 }
 
 // src/types/wood.ts
-
-// ... Existing definitions ...
-
 export interface WoodTransactionDashboard {
-    active_expenses: number;
-    active_sales: number;
-    net_profit: number;
-    store_balance: number;
+    store_balance: number;      // Total accumulated
+    raw_payments: number;       // Total cash collected
+    effective_payments: number; // Cash counted for safe
+    active_expenses: number;    // Business expenses
+    active_takeouts: number;    // Personal withdrawals
+    net_cash_flow: number;      // The final calculation
 }
 
 export interface WoodHistoryItem {

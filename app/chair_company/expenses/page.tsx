@@ -1,9 +1,9 @@
-// src/app/chair_company/expenses/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { Expense, ExpenseMeta, ExpenseResponse } from '@/types/chair';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 import ChairHeader from '../components/ChairHeader';
 import ActionSidebar from './components/ActionSidebar';
@@ -13,6 +13,7 @@ import ExpenseModals from './components/ExpenseModals';
 import PrintExpenses from './components/PrintExpenses';
 
 export default function ChairExpensesPage() {
+    const { t } = useLanguage();
     const [data, setData] = useState<Expense[]>([]);
     const [meta, setMeta] = useState<ExpenseMeta | null>(null);
     const [loading, setLoading] = useState(true);
@@ -58,7 +59,7 @@ export default function ChairExpensesPage() {
             setIsAddOpen(false);
             setFormData({ category: '', amount: '', note: '' });
             fetchData();
-        } catch (e) { alert('Error adding expense'); }
+        } catch (e) { alert(t.chair_expenses.alerts.add_error); }
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -68,7 +69,7 @@ export default function ChairExpensesPage() {
             await api.put(`/chair/expenses/${selectedExpense.id}`, { ...formData, amount: parseFloat(formData.amount) });
             setIsEditOpen(false);
             fetchData();
-        } catch (e) { alert('Error updating expense'); }
+        } catch (e) { alert(t.chair_expenses.alerts.update_error); }
     };
 
     const handleDelete = async () => {
@@ -77,7 +78,7 @@ export default function ChairExpensesPage() {
             await api.delete(`/chair/expenses/${selectedExpense.id}`);
             setIsDeleteOpen(false);
             fetchData();
-        } catch (e) { alert('Error deleting expense'); }
+        } catch (e) { alert(t.chair_expenses.alerts.delete_error); }
     };
 
     const openEdit = (ex: Expense) => {

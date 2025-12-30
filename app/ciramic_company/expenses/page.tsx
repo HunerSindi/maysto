@@ -1,11 +1,11 @@
-// src/app/ciramic_company/expenses/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { Expense, ExpenseMeta, ExpenseResponse } from '@/types/ciramic';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-import CiramicHeader from './components/CiramicHeader';
+import CiramicHeader from '../components/CiramicHeader';
 import ActionSidebar from './components/ActionSidebar';
 import FilterSection from './components/FilterSection';
 import ExpensesTable from './components/ExpensesTable';
@@ -13,34 +13,30 @@ import ExpenseModals from './components/ExpenseModals';
 import PrintExpenses from './components/PrintExpenses';
 
 export default function CiramicExpensesPage() {
-    // Data State
+    const { t } = useLanguage();
     const [data, setData] = useState<Expense[]>([]);
     const [meta, setMeta] = useState<ExpenseMeta | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Filter State
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
-    const [history, setHistory] = useState(false); // Scenario C
+    const [history, setHistory] = useState(false);
 
-    // Modal State
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    // Action Data
     const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
     const [formData, setFormData] = useState({ category: '', amount: '', note: '' });
     const [deleteCode, setDeleteCode] = useState('');
     const [userDeleteInput, setUserDeleteInput] = useState('');
 
-    // Fetch Data
     const fetchData = async () => {
         setLoading(true);
         try {
             const res = await api.get<ExpenseResponse>('/cirmaci/expenses', {
-                params: { page, limit, search, history: history.toString() } // Pass history param
+                params: { page, limit, search, history: history.toString() }
             });
             setData(res.data.data || []);
             setMeta(res.data.meta);
@@ -54,9 +50,8 @@ export default function CiramicExpensesPage() {
     useEffect(() => {
         const t = setTimeout(fetchData, 300);
         return () => clearTimeout(t);
-    }, [page, limit, search, history]); // Refetch when history toggles
+    }, [page, limit, search, history]);
 
-    // Handlers
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -64,7 +59,7 @@ export default function CiramicExpensesPage() {
             setIsAddOpen(false);
             setFormData({ category: '', amount: '', note: '' });
             fetchData();
-        } catch (e) { alert('Error adding expense'); }
+        } catch (e) { alert(t.ceramic_expenses.alerts.add_error); }
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -74,7 +69,7 @@ export default function CiramicExpensesPage() {
             await api.put(`/cirmaci/expenses/${selectedExpense.id}`, { ...formData, amount: parseFloat(formData.amount) });
             setIsEditOpen(false);
             fetchData();
-        } catch (e) { alert('Error updating expense'); }
+        } catch (e) { alert(t.ceramic_expenses.alerts.update_error); }
     };
 
     const handleDelete = async () => {
@@ -83,7 +78,7 @@ export default function CiramicExpensesPage() {
             await api.delete(`/cirmaci/expenses/${selectedExpense.id}`);
             setIsDeleteOpen(false);
             fetchData();
-        } catch (e) { alert('Error deleting expense'); }
+        } catch (e) { alert(t.ceramic_expenses.alerts.delete_error); }
     };
 
     const openEdit = (ex: Expense) => {
@@ -104,12 +99,9 @@ export default function CiramicExpensesPage() {
             <CiramicHeader />
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 flex-1 overflow-hidden print:hidden">
-                {/* Left Sidebar */}
                 <div className="col-span-1">
                     <ActionSidebar meta={meta} onAddClick={() => setIsAddOpen(true)} />
                 </div>
-
-                {/* Main Content */}
                 <div className="col-span-1 lg:col-span-3 flex flex-col h-full overflow-hidden">
                     <FilterSection
                         search={search} setSearch={setSearch}

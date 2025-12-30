@@ -1,9 +1,9 @@
-// src/app/wood_company/expenses/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { Expense, ExpenseMeta, ExpenseResponse } from '@/types/wood';
+import { useLanguage } from "@/lib/i18n/LanguageContext"; // Import Context
 
 import WoodHeader from '../components/WoodHeader';
 import ActionSidebar from './components/ActionSidebar';
@@ -13,6 +13,7 @@ import ExpenseModals from './components/ExpenseModals';
 import PrintExpenses from './components/PrintExpenses';
 
 export default function WoodExpensesPage() {
+    const { t } = useLanguage(); // Use hook
     const [data, setData] = useState<Expense[]>([]);
     const [meta, setMeta] = useState<ExpenseMeta | null>(null);
     const [loading, setLoading] = useState(true);
@@ -58,7 +59,7 @@ export default function WoodExpensesPage() {
             setIsAddOpen(false);
             setFormData({ category: '', amount: '', note: '' });
             fetchData();
-        } catch (e) { alert('Error adding expense'); }
+        } catch (e) { alert(t.wood_expenses.alerts.add_error); } // Translated Alert
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -68,7 +69,7 @@ export default function WoodExpensesPage() {
             await api.put(`/wood/expenses/${selectedExpense.id}`, { ...formData, amount: parseFloat(formData.amount) });
             setIsEditOpen(false);
             fetchData();
-        } catch (e) { alert('Error updating expense'); }
+        } catch (e) { alert(t.wood_expenses.alerts.update_error); } // Translated Alert
     };
 
     const handleDelete = async () => {
@@ -77,7 +78,7 @@ export default function WoodExpensesPage() {
             await api.delete(`/wood/expenses/${selectedExpense.id}`);
             setIsDeleteOpen(false);
             fetchData();
-        } catch (e) { alert('Error deleting expense'); }
+        } catch (e) { alert(t.wood_expenses.alerts.delete_error); } // Translated Alert
     };
 
     const openEdit = (ex: Expense) => {
@@ -94,38 +95,39 @@ export default function WoodExpensesPage() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-800">
-            <WoodHeader />
+        <div>
+            <div className="flex flex-col h-screen bg-white font-sans text-gray-800 print:hidden">
+                <WoodHeader />
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 flex-1 overflow-hidden print:hidden">
-                <div className="col-span-1">
-                    <ActionSidebar meta={meta} onAddClick={() => setIsAddOpen(true)} />
-                </div>
-                <div className="col-span-1 lg:col-span-3 flex flex-col h-full overflow-hidden">
-                    <FilterSection
-                        search={search} setSearch={setSearch}
-                        limit={limit} setLimit={setLimit}
-                        history={history} setHistory={setHistory}
-                    />
-                    <div className="flex-1 min-h-0">
-                        <ExpensesTable
-                            data={data} meta={meta} loading={loading}
-                            onEdit={openEdit} onDelete={openDelete} onPageChange={setPage}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 p-4 flex-1 overflow-hidden print:hidden">
+                    <div className="col-span-1">
+                        <ActionSidebar meta={meta} onAddClick={() => setIsAddOpen(true)} />
+                    </div>
+                    <div className="col-span-1 lg:col-span-3 flex flex-col h-full overflow-hidden">
+                        <FilterSection
+                            search={search} setSearch={setSearch}
+                            limit={limit} setLimit={setLimit}
+                            history={history} setHistory={setHistory}
                         />
+                        <div className="flex-1 min-h-0">
+                            <ExpensesTable
+                                data={data} meta={meta} loading={loading}
+                                onEdit={openEdit} onDelete={openDelete} onPageChange={setPage}
+                            />
+                        </div>
                     </div>
                 </div>
+
+                <ExpenseModals
+                    isAddOpen={isAddOpen} setIsAddOpen={setIsAddOpen}
+                    isEditOpen={isEditOpen} setIsEditOpen={setIsEditOpen}
+                    isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
+                    formData={formData} setFormData={setFormData}
+                    handleAdd={handleAdd} handleUpdate={handleUpdate} handleDelete={handleDelete}
+                    selectedExpense={selectedExpense} deleteCode={deleteCode} userDeleteInput={userDeleteInput} setUserDeleteInput={setUserDeleteInput}
+                />
             </div>
-
             <PrintExpenses data={data} meta={meta} />
-
-            <ExpenseModals
-                isAddOpen={isAddOpen} setIsAddOpen={setIsAddOpen}
-                isEditOpen={isEditOpen} setIsEditOpen={setIsEditOpen}
-                isDeleteOpen={isDeleteOpen} setIsDeleteOpen={setIsDeleteOpen}
-                formData={formData} setFormData={setFormData}
-                handleAdd={handleAdd} handleUpdate={handleUpdate} handleDelete={handleDelete}
-                selectedExpense={selectedExpense} deleteCode={deleteCode} userDeleteInput={userDeleteInput} setUserDeleteInput={setUserDeleteInput}
-            />
         </div>
     );
 }

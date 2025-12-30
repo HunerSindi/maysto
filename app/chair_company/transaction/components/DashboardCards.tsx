@@ -2,8 +2,11 @@
 
 import { TransactionDashboardData } from '@/types/chair';
 import { Wallet, TrendingUp, TrendingDown, Scale } from 'lucide-react';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function DashboardCards({ data }: { data: TransactionDashboardData | null }) {
+    const { t } = useLanguage();
+
     if (!data) return <div className="h-24 bg-gray-100 animate-pulse border border-gray-300"></div>;
 
     const Card = ({ title, amount, icon: Icon, colorClass, borderClass }: any) => (
@@ -23,36 +26,29 @@ export default function DashboardCards({ data }: { data: TransactionDashboardDat
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 print:hidden">
-            {/* 1. Store Balance (Safe) */}
             <Card
-                title="Store Balance"
+                title={t.chair_transaction.dashboard.store_balance}
                 amount={data.store_balance}
                 icon={Wallet}
                 colorClass="text-red-700"
                 borderClass="border-red-300"
             />
-
-            {/* 2. Active Sales (Income) */}
             <Card
-                title="Pending Sales"
+                title={t.chair_transaction.dashboard.pending_sales}
                 amount={data.active_sales}
                 icon={TrendingUp}
                 colorClass="text-green-600"
                 borderClass="border-gray-300"
             />
-
-            {/* 3. Active Expenses (Cost) */}
             <Card
-                title="Pending Expenses"
+                title={t.chair_transaction.dashboard.pending_expenses}
                 amount={data.active_expenses}
                 icon={TrendingDown}
                 colorClass="text-red-600"
                 borderClass="border-gray-300"
             />
-
-            {/* 4. Net Profit */}
             <Card
-                title="Projected Net Profit"
+                title={t.chair_transaction.dashboard.projected_profit}
                 amount={data.net_profit}
                 icon={Scale}
                 colorClass={data.net_profit >= 0 ? "text-green-700" : "text-red-700"}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { WoodCustomer, WoodCustomerMeta, WoodCustomerResponse } from '@/types/wood';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 import WoodHeader from '../components/WoodHeader';
 import CustomerSidebar from './components/CustomerSidebar';
@@ -12,6 +13,7 @@ import CustomerModals from './components/CustomerModals';
 import PrintCustomers from './components/PrintCustomers';
 
 export default function WoodCustomersPage() {
+    const { t } = useLanguage();
     const [data, setData] = useState<WoodCustomer[]>([]);
     const [meta, setMeta] = useState<WoodCustomerMeta | null>(null);
     const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ export default function WoodCustomersPage() {
         try {
             await api.post('/wood/customers', { ...formData, balance: parseFloat(formData.balance) });
             setIsAddOpen(false); setFormData({ name: '', phone: '', location: '', note: '', balance: '0' }); fetchData();
-        } catch (e) { alert('Failed'); }
+        } catch (e) { alert(t.wood_customers.alerts.failed); }
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -55,15 +57,25 @@ export default function WoodCustomersPage() {
         try {
             await api.put(`/wood/customers/${selectedCustomer.id}`, { name: formData.name, phone: formData.phone, location: formData.location, note: formData.note });
             setIsEditOpen(false); fetchData();
-        } catch (e) { alert('Failed'); }
+        } catch (e) { alert(t.wood_customers.alerts.failed); }
     };
 
     const handleDelete = async () => {
         if (!selectedCustomer) return;
-        try { await api.delete(`/wood/customers/${selectedCustomer.id}`); setIsDeleteOpen(false); fetchData(); } catch (e) { alert('Failed'); }
+        try { await api.delete(`/wood/customers/${selectedCustomer.id}`); setIsDeleteOpen(false); fetchData(); } catch (e) { alert(t.wood_customers.alerts.failed); }
     };
 
-    const openEdit = (c: WoodCustomer) => { setSelectedCustomer(c); setFormData({ name: c.name, phone: c.phone, location: c.location, note: c.note, balance: c.balance.toString() }); setIsEditOpen(true); };
+    const openEdit = (c: WoodCustomer) => {
+        setSelectedCustomer(c);
+        setFormData(
+            {
+                name: c.name,
+                phone: c.phone,
+                location: c.location || '',
+                note: c.note || '',
+                balance: c.balance.toString()
+            }); setIsEditOpen(true);
+    };
     const openDelete = (c: WoodCustomer) => { setSelectedCustomer(c); setDeleteCode(Math.floor(1000 + Math.random() * 9000).toString()); setUserDeleteInput(''); setIsDeleteOpen(true); };
 
     return (

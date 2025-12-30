@@ -1,11 +1,11 @@
-// src/app/ciramic_company/sales/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { Sale, SaleMeta, SaleResponse } from '@/types/ciramic';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-import CiramicHeader from '../expenses/components/CiramicHeader'; // Shared Header
+import CiramicHeader from '../components/CiramicHeader';
 import SalesSidebar from './components/SalesSidebar';
 import SalesFilter from './components/SalesFilter';
 import SalesTable from './components/SalesTable';
@@ -13,7 +13,7 @@ import SalesModals from './components/SalesModals';
 import PrintSales from './components/PrintSales';
 
 export default function CiramicSalesPage() {
-    // State
+    const { t } = useLanguage();
     const [data, setData] = useState<Sale[]>([]);
     const [meta, setMeta] = useState<SaleMeta | null>(null);
     const [loading, setLoading] = useState(true);
@@ -32,7 +32,6 @@ export default function CiramicSalesPage() {
     const [deleteCode, setDeleteCode] = useState('');
     const [userDeleteInput, setUserDeleteInput] = useState('');
 
-    // Fetch
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -53,7 +52,6 @@ export default function CiramicSalesPage() {
         return () => clearTimeout(t);
     }, [page, limit, search, history]);
 
-    // Handlers
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -61,7 +59,7 @@ export default function CiramicSalesPage() {
             setIsAddOpen(false);
             setFormData({ amount: '', note: '' });
             fetchData();
-        } catch (e) { alert('Error adding sale'); }
+        } catch (e) { alert(t.ceramic_sales.alerts.add_error); }
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -71,7 +69,7 @@ export default function CiramicSalesPage() {
             await api.put(`/cirmaci/sales/${selectedSale.id}`, { ...formData, amount: parseFloat(formData.amount) });
             setIsEditOpen(false);
             fetchData();
-        } catch (e) { alert('Error updating sale'); }
+        } catch (e) { alert(t.ceramic_sales.alerts.update_error); }
     };
 
     const handleDelete = async () => {
@@ -80,7 +78,7 @@ export default function CiramicSalesPage() {
             await api.delete(`/cirmaci/sales/${selectedSale.id}`);
             setIsDeleteOpen(false);
             fetchData();
-        } catch (e) { alert('Error deleting sale'); }
+        } catch (e) { alert(t.ceramic_sales.alerts.delete_error); }
     };
 
     const openEdit = (s: Sale) => {

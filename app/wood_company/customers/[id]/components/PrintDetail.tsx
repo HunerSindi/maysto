@@ -1,30 +1,86 @@
 'use client';
 import { WoodCustomer, WoodTransaction } from '@/types/wood';
+import { systemHeader } from '@/app/image/header';
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function PrintDetail({ customer, transactions }: { customer: WoodCustomer, transactions: WoodTransaction[] }) {
+    const { t, language } = useLanguage();
+    const isRtl = language === 'ar' || language === 'ku';
+
     return (
-        <div className="hidden print:block absolute top-0 left-0 w-full bg-white z-[9999] p-0 m-0">
-            <table className="w-full border-collapse font-sans text-black">
+        <div
+            className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 overflow-visible"
+            dir={isRtl ? 'rtl' : 'ltr'}
+        >
+            <table className="w-full border-collapse font-sans text-black table-fixed">
+                <colgroup>
+                    <col className="w-12" />
+                    <col className="w-32" />
+                    <col className="w-auto" />
+                    <col className="w-32" />
+                </colgroup>
                 <thead>
-                    <tr><th colSpan={4} className="w-full pb-4"><img src="/print/header.png" className="w-full h-auto max-h-[150px]" /></th></tr>
-                    <tr><th colSpan={4} className="text-left pb-4"><div className="border border-black p-2"><h2 className="text-sm font-bold uppercase">Customer Statement: {customer.name}</h2></div></th></tr>
-                    <tr className="border border-black bg-gray-100"><th className="text-center text-[10px] uppercase p-2 border-r border-black w-12">#</th><th className="text-left text-[10px] uppercase p-2 border-r border-black w-32">Date</th><th className="text-left text-[10px] uppercase p-2 border-r border-black">Note</th><th className="text-right text-[10px] uppercase p-2 w-32">Amount</th></tr>
+                    <tr>
+                        <th colSpan={4} className=" pb-6">
+                            <div className="flex justify-center ">
+                                <img src={systemHeader} className="" alt="Header" />
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colSpan={4} className="pb-4">
+                            <div className="border border-black p-3 bg-gray-50">
+                                <h2 className="text-sm font-bold uppercase">
+                                    {t.wood_customer_detail.print.statement} {customer.name}
+                                </h2>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr className="bg-gray-100">
+                        <th className="border border-black p-2 text-center text-[10px] uppercase w-12">{t.wood_customer_detail.transactions.table.id}</th>
+                        <th className={`border border-black p-2 text-[10px] uppercase w-32 ${isRtl ? 'text-right' : 'text-left'}`}>{t.wood_customer_detail.transactions.table.date}</th>
+                        <th className={`border border-black p-2 text-[10px] uppercase ${isRtl ? 'text-right' : 'text-left'}`}>{t.wood_customer_detail.transactions.table.note}</th>
+                        <th className={`border border-black p-2 text-[10px] uppercase w-32 ${isRtl ? 'text-left' : 'text-right'}`}>{t.wood_customer_detail.transactions.table.amount}</th>
+                    </tr>
                 </thead>
                 <tfoot>
-                    <tr className="border border-black font-bold bg-gray-50"><td colSpan={3} className="text-right p-2 text-xs uppercase border-r border-black">Balance:</td><td className="text-right p-2 text-xs font-mono">{customer.balance.toLocaleString()}</td></tr>
+                    <tr className="bg-gray-50 font-bold">
+                        <td colSpan={3} className={`border border-black p-2 text-xs uppercase ${isRtl ? 'text-left' : 'text-right'}`}>{t.wood_customer_detail.print.balance}</td>
+                        <td className={`border border-black p-2 text-xs font-mono ${isRtl ? 'text-left' : 'text-right'}`}>{customer.balance.toLocaleString()}</td>
+                    </tr>
                 </tfoot>
                 <tbody className="text-[10px]">
                     {transactions.map((tx, idx) => (
-                        <tr key={tx.id} className="border border-black avoid-break">
-                            <td className="p-2 border-r border-black font-mono text-center">{idx + 1}</td>
-                            <td className="p-2 border-r border-black">{new Date(tx.created_at).toLocaleDateString()}</td>
-                            <td className="p-2 border-r border-black">{tx.note}</td>
-                            <td className="p-2 border-r border-black text-right font-mono font-bold">{tx.amount.toLocaleString()}</td>
+                        <tr key={tx.id} className="avoid-break">
+                            <td className="border border-black p-2 font-mono text-center">{idx + 1}</td>
+                            <td className={`border border-black p-2 ${isRtl ? 'text-right' : 'text-left'}`}>{new Date(tx.created_at).toLocaleDateString()}</td>
+                            <td className={`border border-black p-2 ${isRtl ? 'text-right' : 'text-left'}`}>{tx.note}</td>
+                            <td className={`border border-black p-2 font-mono font-bold ${isRtl ? 'text-left' : 'text-right'}`}>{tx.amount.toLocaleString()}</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <style jsx global>{`@media print { @page { margin: 10mm; size: A4; } body { -webkit-print-color-adjust: exact; } tr { page-break-inside: avoid; } thead { display: table-header-group; } tfoot { display: table-footer-group; } }`}</style>
+
+            <style jsx global>{`
+                @media print { 
+                    @page { margin: 10mm; size: A4; } 
+                    body { -webkit-print-color-adjust: exact; } 
+                    
+                    .print\\:block { 
+                        position: fixed !important;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        width: 100%;
+                        height: 100%;
+                    }
+                    
+                    tr { page-break-inside: avoid; } 
+                    thead { display: table-header-group; } 
+                    tfoot { display: table-footer-group; } 
+                }
+            `}</style>
         </div>
     );
 }
